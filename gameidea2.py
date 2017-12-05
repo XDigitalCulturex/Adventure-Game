@@ -22,7 +22,7 @@ def add2List(var, orgAttr):
     
 
 class curWorld(object):
-    def __init__(self, curTime = 0, curQuest = ["Find a place to rest safely"], curCaravan = ["Wagon"], curVehicle["Wagon"]):
+    def __init__(self, curTime = 0, curQuest = ["Find a place to rest safely"], curCaravan = ["Wagon"], curVehicle=["Wagon"]):
         '''
         creates basic attributes for all of the possible needed save states
         '''
@@ -80,15 +80,37 @@ class curWorld(object):
         '''
         Track all the locations available on the map
         '''
+        return self._gridMap
+        
     @gridMap.setter
-    def Add2gridMap(self,var):
+    def gridMap(self,var,direction):
         temp = generateSpot()
-
+        self._gridMap["{}{}{}".format(self.curSpotX, ",", self.curSpotY)] = temp
+        
+    @property
+    def timelineEvents(self):
+        '''
+        dictionary of timeline where the keys are the time
+        and values are ids of events.
+        '''
+        return self._timelineEvents
+    @timelineEvents.setter
+    def timelineEvents(self, var, timefrmNow=1):
+        if not self._timelineEvents :
+            self._timelineEvents = {}
+        self._timelineEvents[timefrmNow].append(var)
+        
 def settlementQuery(settlementNam):
     '''
     settlementNam Show attributes of the settlement
     '''
-    pass
+    return tempWorld.Settlements[settlementNam]
+    
+events = [[1,"Acid rain", "Outdoor", "Acid rain falls from the heavens and you must seek shelter.","Check Acrobatics or Survival "]]
+
+eventsTemplate=["ID","Name","Traits","Description","Mechanisms"]
+
+completeEvents={}
 
 def add2timeline(var, x):
     '''
@@ -102,13 +124,13 @@ def checkTimeline():
     '''
     if tempWorld.timeLine[curTime] != []:
         for val in tempWorld.timeLine[curTime]:
-            doEvent(val)
+            doEvent(completeEvents[val)
 
 def advanceTimeline(advance = 1):
     '''
     Add a bit of time to the current timeline
     '''
-    tempWorld.setcurTime += advance
+    tempWorld.curTime += advance
 
 def loadFile(save="./001"):
     '''
@@ -138,8 +160,16 @@ def saveFile(save="", data=[]):
 ##saveFile(r"H:/test",a)
 ##a = loadFile(r"H:/test")
 
-terrainSchema = {"Name": "", "Danger":0, "Basic Encounters":[],}
+terrainSchema = {"Name": " ", "Danger":0, "Basic Encounters":[],}
 
+terrains = [["Tomb",2,["mummy","giant snake"],["Dungeon",2,["Troll"," "]],["Forest",1,["Elf","Dryad"],["Desert",1,["Bug Ranger", "WereCroc"]]
+
+def generateSpot():
+    '''
+    Generate a location
+    '''
+    return location
+    
 creatureSchema = {"creature":"", "stories":[{"":""},{"":""}],
                   "clues":[{"Debris": []}],
                   "hit locations":[],
@@ -241,7 +271,11 @@ class gui(object):
             self.varDict["0"].insert(0, inPath)
 
 if __name__ == "__main__":
-
-    tempWorld = curWorld()
-        
-    tempWorld.players = gui(1, "How many players do you have?", "integer")
+    if os.path.exists("/saves/001.sve")==False:
+    
+        tempWorld = curWo
+            
+        temp tempWorld.players = gui(1, "How many players do you have?", "integer")
+        saveFile("/saves/001",tempWorld)
+    else:
+        tempWorld = loadFile("/saves/001")
