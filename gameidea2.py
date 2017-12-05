@@ -5,17 +5,34 @@ from Tkinter import *
 import ScrolledText
 import os
 import time
+import random
+
+def add2List(var, orgAttr):
+    '''
+    check if the variable is a list to append to current list
+    or if its a value to add alone
+    '''
+    
+    if type(var) == type(list):
+        for val in var:
+            orgAttr.append(val)
+    else:
+        orgAttr.append(var)
+    return orgAttr
+    
 
 class curWorld(object):
-    def __init__(self, curTime = 0):
+    def __init__(self, curTime = 0, curQuest = ["Find a place to rest safely"], curCaravan = ["Wagon"], curVehicle["Wagon"]):
         '''
         creates basic attributes for all of the possible needed save states
         '''
         self.currentAdventurers = []
-        self.currentQuests = []
+        self.currentQuests = curQuest
         self.currentLocation = {}
         self.currentKeywords=[]
         self.curTime = curTime
+        self.caravanLocations = curCaravan
+        self.caravanVehicle = curVehicle
 
     @property
     def curTime(self):
@@ -37,8 +54,12 @@ class curWorld(object):
 
     @characterList.setter
     def characterList(self, var):
-        self._characterList = var
-
+        if self._characterList not in locals():
+            self._characterList = add2List(var, self._characterList)
+        else:
+            self._characterList( var, [])
+        
+            
     @property
     def caravanVehicle(self):
         '''
@@ -47,71 +68,12 @@ class curWorld(object):
         return self._caravanVehicle
 
     @caravanVehicle.setter
-    def CaravanVehicle(self,var):
-        self._caravanVehicle = var
-
-    @property
-    def caravanLocations(self):
-        '''
-        What locations are available wherever the caravan goes
-        '''
-        return self._caravanLocations
-
-    @caravanLocations.setter
-    def caravanLocations(self,var):
-        if self._caravanLocations not in locals():
-            self._caravanLocations = [var]
+    def caravanVehicle(self,var):
+        if var in self._currentKeywords:
+            
+            self._currentKeywords.remove(var)
         else:
-            self._caravanLocations.append(var)
-
-    @property
-    def caravanResources(self):
-        '''
-        What resources are available wherever the caravan goes
-        '''
-        return self._caravanResources
-
-    @caravanResources.setter
-    def caravanResources(self,var):
-        if self._caravanResources not in locals():
-            self._caravanResources = [var]
-        else:
-            self._caravanResources.append(var)
-
-    @property
-    def caravanGear(self):
-        '''
-        What geaer are available wherever the caravan goes
-        '''
-        return self._caravanGear
-
-    @caravanGear.setter
-    def caravanGear(self,var):
-        if self._caravanGear not in locals():
-            self._caravanGear = [var]
-        else:
-            self._caravanGear.append(var)               
-
-    @property
-    def players(self):
-        '''
-        The number of players to keep track of
-        '''
-        return self._players
-
-    @players.setter
-    def players(self,var):
-        self._players = var
-    
-    @property
-    def currentKeywords(self):
-        '''
-        All the keywords currently in the party
-        '''
-        return self._currentKeywords
-    @currentKeywords.setter
-    def currentKeywords(self,var):
-        self._currentKeywords = var
+            self._currentKeywords = add2List(var,self_currentKeywords)
         
     @property
     def gridMap(self):
@@ -154,23 +116,27 @@ def loadFile(save="./001"):
     '''
     try:
         with open(''.join([save,".sve"]),'rb') as log:
-            pickle.load(log)
+            saves = pickle.load(log)
         return saves
     except pickle.UnpicklingError:
         print "File can't be loaded"
-        return None
+        return False
 
 def saveFile(save="", data=[]):
     '''
     Save current data
     '''
     try:
-        with open(''.join([save,".sve"]),'rb') as log:
+        with open(''.join([save,".sve"]),'wb') as log:
             pickle.dump(data, log)
         return True
     except pickle.PicklingError:
         print "Object can't be saved"
         return False
+
+##a = curWorld()
+##saveFile(r"H:/test",a)
+##a = loadFile(r"H:/test")
 
 terrainSchema = {"Name": "", "Danger":0, "Basic Encounters":[],}
 
