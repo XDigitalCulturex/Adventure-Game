@@ -69,11 +69,13 @@ class curWorld(object):
 
     @caravanVehicle.setter
     def caravanVehicle(self,var):
-        if var in self._currentKeywords:
+        if "_currentVehicle" not in locals():
+            self._currentVehicle =[var]
+        if var in self._currentVehicle:
             
-            self._currentKeywords.remove(var)
+            self._currentVehicle.remove(var)
         else:
-            self._currentKeywords = add2List(var,self_currentKeywords)
+            self._currentVehicle = add2List(var,self_currentVehicle)
         
     @property
     def gridMap(self):
@@ -124,7 +126,7 @@ def checkTimeline():
     '''
     if tempWorld.timeLine[curTime] != []:
         for val in tempWorld.timeLine[curTime]:
-            doEvent(completeEvents[val)
+            doEvent(completeEvents[val])
 
 def advanceTimeline(advance = 1):
     '''
@@ -149,6 +151,8 @@ def saveFile(save="", data=[]):
     Save current data
     '''
     try:
+        if os.path.exists("./saves") == False:
+            os.mkdir("./saves")
         with open(''.join([save,".sve"]),'wb') as log:
             pickle.dump(data, log)
         return True
@@ -162,13 +166,41 @@ def saveFile(save="", data=[]):
 
 terrainSchema = {"Name": " ", "Danger":0, "Basic Encounters":[],}
 
-terrains = [["Tomb",2,["mummy","giant snake"],["Dungeon",2,["Troll"," "]],["Forest",1,["Elf","Dryad"],["Desert",1,["Bug Ranger", "WereCroc"]]
+##terrains = [["Tomb",2,["mummy","giant snake"],["Dungeon",2,["Troll"," "]],["Forest",1,["Elf","Dryad"],["Desert",1,["Bug Ranger", "WereCroc"]]
 
 def generateSpot():
     '''
     Generate a location
     '''
     return location
+
+class locale(object):
+    def __init__(self,x,y,z,nEx=False,sEx=False, wEx=False,eEx=False,upEx=False,dEx=False):
+        self.Xcoord = x
+        self.Ycoord = y
+        self.Zcoord = z
+        self.southExit =sEx
+        self.northExit = nEx
+        self.westExit = wEx
+        self.eastExit = eEx
+        self.upExit = upEx
+        self.downExit = dEx
+        self.encounteredofType = 0
+        self.tileTypes()
+
+    def pickRules(self):
+        self.encounteredofType +=1
+
+
+    def tileTypes(self):
+        self.Types = ["Desert Temple", "Dirty Town", "Castle", "Dungeon","Outdoors","Lava","Crystal","Underground"]
+        self.themeID = range(len(self.Types))
+        self.tileDict = {}
+        self.tileLst = []
+        x=0
+        while x < len(self.Types):
+            self.tileDict[x] = self.Types[x]
+            self.tileLst.append({"ID":x,"Theme":self.Types[x]})
     
 creatureSchema = {"creature":"", "stories":[{"":""},{"":""}],
                   "clues":[{"Debris": []}],
@@ -206,6 +238,125 @@ def addMenuHelp(guiObj, entries):
     menuBar.add_cascade(label='Help',menu=helpMenu)
     guiObj.master.config(menu=menuBar)
     helpMenu.config(background=masterBackground,fg='white')
+
+class locale(object):
+    def __init__(self,x,y,z,nEx=False,sEx=False, wEx=False,eEx=False,upEx=False,dEx=False):
+        self.Xcoord = x
+        self.Ycoord = y
+        self.Zcoord = z
+        self.southExit =sEx
+        self.northExit = nEx
+        self.westExit = wEx
+        self.eastExit = eEx
+        self.upExit = upEx
+        self.downExit = dEx
+        self.encounteredofType = 0
+        self.tileTypes()
+
+    def pickRules(self):
+        self.encounteredofType +=1
+
+
+    def tileTypes(self):
+        self.Types = ["Desert Temple", "Dirty Town", "Castle", "Dungeon","Outdoors","Lava","Crystal","Underground"]
+        self.themeID = range(len(self.Types))
+        self.tileDict = {}
+        self.tileLst = []
+        x=0
+        while x < len(self.Types):
+            self.tileDict[x] = self.Types[x]
+            self.tileLst.append({"ID":x,"Theme":self.Types[x]})    
+
+class guiFrame(Frame):
+    '''To create a frame that will be added in to the root Tk object'''    
+    def __init__(self, master, numBox=[], title = "Start", returnType = "string", cmbBox=[], bttnEntry={}, drpDown = {"Keys":[]}):
+        Frame.__init__(self, master)
+        self.grid_propagate(0)
+        self.master = master
+        self.cmd=""
+        self.returnType = returnType
+        self.dialog_frame = Frame(self).pack(side = TOP, padx=20, pady=15)
+        self.master.attributes("-topmost", True)
+        self.master.resizable(False, False)
+        self.master.tk_setPalette(background = "#ececec")
+        x = (self.master.winfo_screenwidth() - self.master.winfo_reqwidth())/2
+        y = (self.master.winfo_screenheight() - self.master.winfo_reqheight())/3
+        self.master.geometry("+{}+{}".format(x,y))
+        self.master.protocol('WM_DELETE_WINDOW',lambda : self.cancelFr(self.cmd))
+        self.master.bind('<Return>', lambda : self.cancelFr(self.cmd))
+        self.master.bind('<Escape>', lambda : self.cancelFr(self.cmd))
+        addMenuHelp(self,{"Help me": "http://google.com"})
+        self.numBox = numBox
+
+        if drpDown["Keys"] != []:
+            self.doDrop(drpDown)
+        
+        self.entryDict = {}
+        x=0
+        for lbl in self.numBox:
+            self.entryDict[lbl] = Label(self.dialog_frame, text = lbl)
+            self.entryDict[lbl].pack(side=TOP)             
+            self.entryDict[str(x)] = Entry(self.dialog_frame, width=45)          
+            self.entryDict[str(x)].pack(side=TOP, expand=YES, pady=2, anchor=W)           
+            x+=1
+        self.cmbBox = cmbBox
+
+        bottom_frame = Frame(self).pack(side = BOTTOM, padx = 15, pady  =5)
+        for k,v in bttnEntry.iteritems():
+            self.entryDict[k] = Button(self.dialog_frame,height = 3, text = k, default = 'active', command = lambda opt = [k,v]: self.runIt(opt)).pack(side = RIGHT,fill='x',pady=30,padx=5)
+        done = Button(bottom_frame, text = "Done", default = 'active', command = self.doEntries).pack(side = TOP)
+        self.TxT = ScrolledText(bottom_frame)
+        self.TxT.pack(side = BOTTOM)
+        
+        self.master.mainloop()
+
+    def doDrop(self, dic={}):
+        self.drpDown = dic        
+        self.drpDownKeys = self.drpDown["Keys"]
+        self.DDval = StringVar()
+        self.Drop = OptionMenu(self.dialog_frame, self.DDval, self.drpDownKeys)
+        self.Drop.pack()
+
+    def runIt(self, *args):
+        '''
+        executes function of funky and adds output to self.cmd
+        '''
+        globals()[args[0][1]](args[0][0])
+        if self.cmd == "list":
+            self.cmd.append(val)
+        else:
+            self.cmd = val
+
+    def doEntries(self, *args):
+        '''
+        compile all the values from the entry boxes
+        '''
+        try:
+            val = []
+            for k in self.entryDict.keys():
+                if k.isdigit() == True:
+                    val.append(self.entryDict[k].get())
+            if self.DDVal in locals():
+                val.append(self.DDVal)
+        except:
+            print "failed"
+                
+charTemplates = {"Keys":["DoubleDrizzle"],"Values":{"DoubleDrizzle":{"picture":"","Keywords":["Human","Navigator"],"Ability":["Reduce Danger by 1",""]}}}
+
+def buildCharacter(var):
+    '''
+    go through the status and needs for character creation
+    '''
+    var = guiFrame(root, [],var,drpDown=charTemplates).cmd
+    tempWorld.players = int(guiFrame(root, ["How many characters do you have?"], "How many players do you have?").cmd[0])
+    chars = {}
+    x= 0
+    print tempWorld.players
+    while x < int(tempWorld.players):
+        x+=1        
+        chars["Pick Character " + str(x)] = "buildCharacter"
+    tempWorld.characterList = guiFrame(root, [], "Pick Char", bttnEntry=chars).cmd
+    print guiFrame(root,[], "Pick ability",bttnEntry={"Talents":["Sailing","Navigation"]})
 
 class gui(object):
     """Graphical User Interface template"""
@@ -271,11 +422,12 @@ class gui(object):
             self.varDict["0"].insert(0, inPath)
 
 if __name__ == "__main__":
-    if os.path.exists("/saves/001.sve")==False:
+    root = Tk()
+    if os.path.exists("./saves/001.sve")==False:
     
-        tempWorld = curWo
+        tempWorld = curWorld()
             
-        temp tempWorld.players = gui(1, "How many players do you have?", "integer")
-        saveFile("/saves/001",tempWorld)
+        tempWorld.players = gui(1, "How many players do you have?", "integer")
+        saveFile("./saves/001",tempWorld)
     else:
-        tempWorld = loadFile("/saves/001")
+        tempWorld = loadFile("./saves/001")

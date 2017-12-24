@@ -1,0 +1,31 @@
+ID, Name, Keyword, Danger, Description, Mechanics
+
+1, Creature clue, Hunt, 2, You find a [Debris] clue that there might be some kind of creature nearby., Survival to see what possible creature types\n
+
+2, Safe place, Safe, 0, You have found a safe place to rest., Danger 0 at this spot.\n
+
+3, Merchant, Barter, 1, A merchant with items for sale, Generate a list of possible items for sale and present them with price.\n
+
+4, Sheer cliff, [Athletics,Rope], 2, You have found a sheer cliff that needs equipment and skill to traverse., If you have Athletics and a Rope, you can proceed further.\n
+
+5, Energy Storm, Lightning, 2, Energy lights up and shocks the area., If wearing metal armor take double the damage the storm does.\n
+
+6, Hunted, None, 2, You feel uneasy like you're being watched., Add another enemy to the encounter list.
+
+7, Good spot, Camping Gear, 0, You find a place that could make a good camp, With Camping Gear this can be turned into a safe spot.
+
+8, Windy Haunts, Frightening, 1, You hear voices of pained people on the wind., Roll if a character does not have Brave.
+
+9, Stench of Death, Sickening, 3, Horrible smells of rotting decay fills your nostrils., If you don't have a Strong Stomach, get sickened.
+
+Locations
+
+Dried up well
+Filled with cobwebs
+A medical chamber
+Several sarcophagi
+Shelves of old pots and baskets
+Long Narrow Hall
+Large open room
+Cracked and damaged floor
+Guardian Chamber
