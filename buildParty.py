@@ -6,6 +6,8 @@ from ScrolledText import *
 import os
 import time
 import random
+from PIL import Image, ImageTk  
+
 
 def killIt(TkObj):
     ''' Ends a loop and destroys said object'''
@@ -75,7 +77,7 @@ def guiPreferences(TkWindow, title):
 
 
 charTemplates = {"keys": ["Blue Paladin","Gold Dwarf"],
-                 "values":{"Blue Paladin":{"picture":"./GameIdea/Fantasy/20170812_143454.jpg","Keywords":["Human","Male"],"Ability":["Shield Block","Defend Others"]}}}
+                 "values":{"Blue Paladin":{"picture":"./Gameidea/Fantasy/20170812_143454.jpg","Keywords":["Human","Male"],"Ability":["Shield Block","Defend Others"]}}}
 
 class partyScreen(Frame):
     '''The screen for all things setting up your party'''
@@ -87,7 +89,8 @@ class partyScreen(Frame):
         self.charN.pack(side=TOP)             
         self.charEnt = Entry(self.dialog_frame, width=45)          
         self.charEnt.pack(side=TOP, expand=YES, pady=2, anchor=W)
-
+        self.charLabel=dict()
+        self.charTemplates = drpDown
         
         '''
         gui to pick party members
@@ -95,17 +98,19 @@ class partyScreen(Frame):
         self.doDrop(drpDown)
 
 
-        bottom_frame = Frame(self).pack(side = BOTTOM, padx = 15, pady  =5)
+        self.bottom_frame = Frame(self).pack(side = BOTTOM, padx = 15, pady  =5)
 ##        for k,v in bttnEntry.iteritems():
 ##            self.entryDict[k] = Button(self.bottom_frame,height = 3, text = k, default = 'active', command = lambda opt = [k,v]: self.runIt(opt)).pack(side = RIGHT,fill='x',pady=30,padx=5)
-        done = Button(bottom_frame, text = "Done", default = 'active', command = self.doEntries)
-        done.pack(side = TOP)
-        self.TxT = ScrolledText(bottom_frame)
+        self.done = Button(self.bottom_frame, text = "Select Character", default = 'active', command = self.doEntries)
+        self.done.pack(side = TOP)
+        self.TxT = ScrolledText(self.bottom_frame)
 
         self.TxT.pack(side = BOTTOM)
         self.TxT.insert(END,'\n')
-        self.picFrame = PhotoImage(file= charTemplates["values"]["Blue Paladin"]["picture"])
-        self.TxT.image_create(END, image=self.picFrame)                
+
+        self.charPic = ImageTk.PhotoImage(Image.open(charTemplates["values"]["Blue Paladin"]["picture"]).resize((250,200), Image.ANTIALIAS).rotate(-90))
+        self.charLabel[0] = Label(self.bottom_frame, height = 250, width = 200, image=self.charPic)
+        self.charLabel[0].pack(side=TOP, padx=5, pady=5)              
         
         
         self.master.mainloop()
@@ -114,32 +119,56 @@ class partyScreen(Frame):
         self.drpDown = dic        
         self.drpDownKeys = self.drpDown["keys"]
         self.DDval = StringVar()
-        self.Drop = OptionMenu(self.dialog_frame, self.DDval, tuple(self.drpDownKeys))
+        self.Drop = OptionMenu(self.dialog_frame, self.DDval, *tuple(self.drpDownKeys), command= self.addTxt)
+    
         self.Drop.pack()
+
+    def addTxt(self, var):
+        self.TxT.insert(END,'\n')
+        self.TxT.insert(END, "Keywords: " + ', '.join(self.charTemplates["values"][var]["Keywords"]) + "\n")
+        self.TxT.insert(END, "Ability: " + ', '.join(self.charTemplates["values"][var]["Ability"]) + "\n")        
         
     def doEntries(self):
         self.returns = {}
-        self.returns["Name"] = self.charEnt.get()
-        self.returns["Character"] = self.DDval.get()
+        self.returns["title"] = self.master.title()
+        self.returns["name"] = self.charEnt.get()
+        self.returns["character"] = self.DDval.get()
+        self.returns["keywords"] = self.charTemplates["values"][self.returns["Character"]]["Keywords"]
+        self.returns["ability"] = self.charTemplates["values"][self.returns["Character"]]["Ability"]
+        self.master.quit()
+        removeWindows(self.master)
+        self.pack_forget()
+        self.destroy()
+        return self.returns
 
-##def buildCharacter(var):
-##    '''
-##    go through the status and needs for character creation
-##    '''
-##    var = guiFrame(root, [],var,drpDown=charTemplates).cmd
-##    tempWorld.players = int(guiFrame(root, ["How many characters do you have?"], "How many players do you have?").cmd[0])
-##    chars = {}
-##    x= 0
-##    print tempWorld.players
-##    while x < int(tempWorld.players):
-##        x+=1        
-##        chars["Pick Character " + str(x)] = "buildCharacter"
+def removeWindows(vals):
+    for x in vals.winfo_children():
+        for y in x.winfo_children():
+            y.destroy()
+        x.destroy()                                                     
+
+def buildCharacter(tempWorld):
+    '''
+    go through the status and needs for character creation
+    '''
+    returns=[]
+    x=0
+    while x < tempWorld:
+        x+=1        
+        returns.append(partyScreen(root, "Select Character " + str(x)).returns)
+    print returns    
+ 
 ##    tempWorld.characterList = guiFrame(root, [], "Pick Char", bttnEntry=chars).cmd
 ##    print guiFrame(root,[], "Pick ability",bttnEntry={"Talents":["Sailing","Navigation"]})
+    return returns
 
 
 
 if __name__ == "__main__":
     root = Tk()
+    guiPreferences(root,"Main Window")
     tempWorld = 2
-    partyScreen(root)
+    buildCharacter(tempWorld)
+
+    guiPreferences(root,"Main Window")    
+    root.mainloop()
